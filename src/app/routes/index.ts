@@ -7,6 +7,7 @@ import { marqueeRoutes } from "../modules/marquees/marquee.route"
 import { depositRouter } from "../modules/deposite/deposite.route"
 import { inputRoutes } from "../modules/input/input.route"
 import { AdminRoutes } from "../modules/admin/admin.route"
+import { PromotionRoutes } from "../modules/promotion/promotion.route"
 
 export const router = Router()
 
@@ -43,6 +44,10 @@ const moduleRoutes = [
     {
         path: "/admin",
         route: AdminRoutes
+    },
+    {
+        path: "/promotions",
+        route: PromotionRoutes
     }
 ]
 

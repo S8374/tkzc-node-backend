@@ -7,11 +7,14 @@ export interface IPaymentMethod {
   icon: string;
   tab: string;           
   description?: string;
+  text?:string;
   order: number;           
   isActive: boolean;       
   createdAt?: Date;
   updatedAt?: Date;
 }
+
+
 
 
 
