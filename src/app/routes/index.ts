@@ -8,6 +8,7 @@ import { depositRouter } from "../modules/deposite/deposite.route"
 import { inputRoutes } from "../modules/input/input.route"
 import { AdminRoutes } from "../modules/admin/admin.route"
 import { PromotionRoutes } from "../modules/promotion/promotion.route"
+import { DepositRequestRoutes } from "../modules/depositRequest/depositRequest.route"
 
 export const router = Router()
 
@@ -48,6 +49,10 @@ const moduleRoutes = [
     {
         path: "/promotions",
         route: PromotionRoutes
+    },
+    {
+        path: "/deposit-requests",
+        route: DepositRequestRoutes
     }
 ]
 

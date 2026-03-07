@@ -4,6 +4,7 @@ import httpStatus from "http-status-codes";
 import AppError from "../../errorHelpers/AppError";
 import { User } from "../user/user.model";
 import { createUserTokens } from "../../utils/userTokens";
+import { Wallet } from "../wallet/wallet.model";
 
 const credentialsLogin = async (payload: {
   identifier?: string;
@@ -55,10 +56,30 @@ const credentialsLogin = async (payload: {
 const getMe = async (userId: string) => {
   if (!userId) throw new Error("User ID is required");
 
-  const user = await User.findById(userId).select("-password -__v"); // exclude sensitive info
+  // Get user without sensitive info
+  const user = await User.findById(userId).select("-password -__v");
   if (!user) throw new Error("User not found");
 
-  return user.toObject();
+  // Get user's wallet
+  const wallet = await Wallet.findOne({ user: userId }).select("-__v");
+
+  // Combine user and wallet data
+  const userObject = user.toObject();
+  
+  return {
+    ...userObject,
+    wallet: wallet ? {
+      balance: wallet.balance,
+      walletAddress: wallet.walletAddress,
+      protocol: wallet.protocol,
+      createdAt: wallet.createdAt,
+      updatedAt: wallet.updatedAt
+    } : {
+      balance: 0,
+      walletAddress: null,
+      protocol: null
+    }
+  };
 };
 
 export const AuthServices = { credentialsLogin ,getMe};
