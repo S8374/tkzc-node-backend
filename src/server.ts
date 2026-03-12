@@ -4,6 +4,9 @@ import mongoose from "mongoose";
 import app from "./app";
 import { envVars } from "./app/config/env";
 import { seedSuperAdmin } from "./app/utils/seedSuperAdmin";
+// ─── Optional: Force better DNS servers (fixes ECONNREFUSED querySrv on many Windows/local setups) ──
+import dns from "node:dns";
+dns.setServers(["8.8.8.8", "1.1.1.1"]);   // Google + Cloudflare DNS
 
 let server: Server;
 

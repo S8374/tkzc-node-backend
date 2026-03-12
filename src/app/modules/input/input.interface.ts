@@ -11,6 +11,7 @@ export interface IFormField {
   tab: string;                    
   paymentMethodId?: Types.ObjectId;  // link to payment method
   isActive: boolean;
+  isBonusField?: boolean;           
   createdAt?: Date;
   updatedAt?: Date;
 }

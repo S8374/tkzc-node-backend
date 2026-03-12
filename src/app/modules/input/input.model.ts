@@ -37,6 +37,10 @@ const formFieldSchema = new Schema<IFormField>(
       type: Boolean,
       default: true,
     },
+    isBonusField: {
+      type: Boolean,
+      default: false
+    }
   },
   { timestamps: true, versionKey: false }
 );
