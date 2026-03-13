@@ -9,6 +9,9 @@ import { inputRoutes } from "../modules/input/input.route"
 import { AdminRoutes } from "../modules/admin/admin.route"
 import { PromotionRoutes } from "../modules/promotion/promotion.route"
 import { DepositRequestRoutes } from "../modules/depositRequest/depositRequest.route"
+import { PartnerRoutes } from "../modules/partner/partner.route"
+import { CryptoExchangeRoutes } from "../modules/cryptoExchange/cryptoExchange.route"
+import { SupportRoutes } from "../modules/support/support.route"
 
 export const router = Router()
 
@@ -53,6 +56,22 @@ const moduleRoutes = [
     {
         path: "/deposit-requests",
         route: DepositRequestRoutes
+    },
+    {
+        path: "/deposit-requests",
+        route: DepositRequestRoutes
+    },
+    {
+        path: "/partners",
+        route: PartnerRoutes
+    },
+    {
+        path: "/crypto-exchanges",
+        route: CryptoExchangeRoutes
+    },
+    {
+        path: "/supports",
+        route: SupportRoutes
     }
 ]
 

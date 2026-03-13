@@ -4,25 +4,32 @@ import { FormFieldModel } from "./input.model";
 import httpStatus from "http-status-codes";
 
 // Create
-// Create
 const createField = async (payload: IFormField) => {
+  const tab = payload.tab?.trim().toLowerCase();
+  const isBonus = !!payload.isBonusField;
+
+  if (!tab) throw new AppError(httpStatus.BAD_REQUEST, "Tab is required");
 
   // ✅ Bonus field validation
-  if (payload.isBonusField) {
+  if (isBonus) {
     const existingBonus = await FormFieldModel.findOne({
-      tab: payload.tab,
+      tab,
       isBonusField: true,
     });
 
     if (existingBonus) {
       throw new AppError(
         httpStatus.BAD_REQUEST,
-        `Bonus field already exists for tab "${payload.tab}"`
+        `Bonus field already exists for tab "${tab}"`
       );
     }
   }
 
-  return await FormFieldModel.create(payload);
+  return await FormFieldModel.create({
+    ...payload,
+    tab,
+    isBonusField: isBonus,
+  });
 };
 
 // Get by payment method
