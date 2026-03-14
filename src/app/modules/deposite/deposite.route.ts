@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createInstruction, createPaymentMethod, deleteInstruction, deletePaymentMethod, getActivePaymentMethods, getAllInstructions, getAllPaymentMethods, getInstructionsByType, getPaymentMethodByTab, updateInstruction, updatePaymentMethod } from "./deposite.controller";
+import { createInstruction, createPaymentMethod, createTittle, deleteInstruction, deletePaymentMethod, deleteTittle, getActivePaymentMethods, getActiveTittlesByTab, getAllInstructions, getAllPaymentMethods, getAllTittles, getInstructionsByType, getPaymentMethodByTab, getSingleTittle, updateInstruction, updatePaymentMethod, updateTittle } from "./deposite.controller";
 
 const router = Router();
 
@@ -22,5 +22,16 @@ router.get("/instruction/tab/:tab", getInstructionsByType);
 router.put("/instruction/:id", updateInstruction);
 router.delete("/instruction/:id", deleteInstruction);
 
+
+
+// Admin routes
+router.post("/tittle", createTittle);
+router.get("/tittle", getAllTittles);
+router.patch("/tittle/:id", updateTittle);
+router.delete("/tittle/:id", deleteTittle);
+
+// Frontend
+router.get("/active/:tab", getActiveTittlesByTab);
+router.get("/tittle/:id", getSingleTittle);
 
 export const depositRouter =  router;

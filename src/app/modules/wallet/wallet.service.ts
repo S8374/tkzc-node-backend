@@ -39,5 +39,15 @@ const updateWallet = async (
 
   return wallet;
 };
+// Get wallet by user ID
+const getWalletByUser = async (userId: string) => {
+  console.log("Fetching wallet for user ID:", userId); // Debug log
+  const wallet = await Wallet.findOne({ user: userId });
 
-export const WalletServices = { updateWallet };
+  if (!wallet) {
+    throw new AppError(httpStatus.NOT_FOUND, "Wallet not found for this user");
+  }
+
+  return wallet;
+};
+export const WalletServices = { updateWallet , getWalletByUser};

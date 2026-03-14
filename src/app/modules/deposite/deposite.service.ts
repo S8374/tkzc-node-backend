@@ -1,5 +1,7 @@
-import { IInstruction, IPaymentMethod } from "./deposite.interface";
-import { InstructionModel, PaymentMethodModel } from "./deposite.model";
+import AppError from "../../errorHelpers/AppError";
+import { IInstruction, IPaymentMethod, ITittle } from "./deposite.interface";
+import { InstructionModel, PaymentMethodModel, TittleModel } from "./deposite.model";
+import httpStatus from "http-status-codes";
 
 // Create
 const createPaymentMethod = async (payload: IPaymentMethod) => {
@@ -75,6 +77,59 @@ const deleteInstruction = async (id: string) => {
 };
 
 
+// Create with unique tab check
+const createTittle = async (payload: ITittle) => {
+  // Check if a Tittle already exists for this tab
+  const existing = await TittleModel.findOne({ tab: payload.tab });
+  if (existing) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      `A Tittle already exists for tab "${payload.tab}". Only one allowed per tab.`
+    );
+  }
+
+  return await TittleModel.create(payload);
+};
+
+
+// Get All
+const getAllTittles = async () => {
+  return await TittleModel.find().sort({ createdAt: -1 });
+};
+
+// Get Active by Tab
+const getActiveTittlesByTab = async (tab: string) => {
+  return await TittleModel.find({ tab, isActive: true }).sort({ createdAt: -1 });
+};
+
+// Get Single
+const getSingleTittle = async (id: string) => {
+  return await TittleModel.findById(id);
+};
+
+// Update (optional: also prevent changing tab to duplicate)
+const updateTittle = async (id: string, payload: Partial<ITittle>) => {
+  if (payload.tab) {
+    const existing = await TittleModel.findOne({ tab: payload.tab, _id: { $ne: id } });
+    if (existing) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        `Another Tittle already exists for tab "${payload.tab}". Only one allowed per tab.`
+      );
+    }
+  }
+
+  return await TittleModel.findByIdAndUpdate(id, payload, {
+    new: true,
+    runValidators: true,
+  });
+};
+// Delete
+const deleteTittle = async (id: string) => {
+  return await TittleModel.findByIdAndDelete(id);
+};
+
+
 export const PaymentMethodService = {
   createPaymentMethod,
   getAllPaymentMethods,
@@ -88,5 +143,12 @@ export const PaymentMethodService = {
   getSingleInstruction,
   updateInstruction,
   deleteInstruction,
-  getPaymentMethodByTab
+  getPaymentMethodByTab,
+
+  createTittle,
+  getAllTittles,
+  getActiveTittlesByTab,
+  getSingleTittle,
+  updateTittle,
+  deleteTittle,
 };

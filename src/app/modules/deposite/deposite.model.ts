@@ -1,6 +1,6 @@
 
 import { Schema, model } from "mongoose";
-import { IInstruction, IPaymentMethod } from "./deposite.interface";
+import { IInstruction, IPaymentMethod, ITittle } from "./deposite.interface";
 
 const paymentMethodSchema = new Schema<IPaymentMethod>(
   {
@@ -80,3 +80,36 @@ export const InstructionModel = model<IInstruction>(
   "Instruction",
   instructionSchema
 );
+
+
+
+const tittleSchema = new Schema<ITittle>(
+  {
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    description: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
+      index: true,
+    },
+    tab: {
+      type: String,
+      required: true,
+      index: true,
+    },
+  },
+  {
+    timestamps: true,
+    versionKey: false,
+  }
+);
+
+export const TittleModel = model<ITittle>("Tittle", tittleSchema);

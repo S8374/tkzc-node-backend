@@ -136,3 +136,79 @@ export const deleteInstruction = async (req: Request, res: Response) => {
     message: "Instruction deleted successfully",
   });
 };
+
+// Create
+export const createTittle = async (req: Request, res: Response) => {
+  const result = await PaymentMethodService.createTittle(req.body);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.CREATED,
+    message: "Tittle created successfully",
+    data: result,
+  });
+};
+
+// Get All (Admin)
+export const getAllTittles = async (req: Request, res: Response) => {
+  const result = await PaymentMethodService.getAllTittles();
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    data: result,
+    message: ""
+  });
+};
+
+// Get Active by Tab (Frontend)
+export const getActiveTittlesByTab = async (req: Request, res: Response) => {
+  const { tab } = req.params;
+  const result = await PaymentMethodService.getActiveTittlesByTab(tab);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    data: result,
+    message: ""
+  });
+};
+
+// Get Single
+export const getSingleTittle = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await PaymentMethodService.getSingleTittle(id);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    data: result,
+    message: ""
+  });
+};
+
+// Update
+export const updateTittle = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await PaymentMethodService.updateTittle(id, req.body);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Tittle updated successfully",
+    data: result,
+  });
+};
+
+// Delete
+export const deleteTittle = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  await PaymentMethodService.deleteTittle(id);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Tittle deleted successfully",
+    data: null,
+  });
+};
