@@ -1,0 +1,19 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PromotionModel = void 0;
+const mongoose_1 = require("mongoose");
+const promotionSchema = new mongoose_1.Schema({
+    tab: { type: String, required: true, index: true },
+    bonusName: { type: String, required: true },
+    type: {
+        type: String,
+        enum: ["PERCENT", "FIXED"],
+        required: true,
+    },
+    value: { type: Number, required: true },
+    minDeposit: { type: Number },
+    isActive: { type: Boolean, default: true },
+    startDate: { type: Date },
+    endDate: { type: Date },
+}, { timestamps: true });
+exports.PromotionModel = (0, mongoose_1.model)("PromotionBonus", promotionSchema);

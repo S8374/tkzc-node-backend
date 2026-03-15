@@ -19,15 +19,19 @@ interface EnvConfig {
 
   EXPRESS_SESSION_SECRET: string;
   FRONTEND_URL: string;
-
+EMAIL_SENDER: {
+  SMTP_HOST: string,
+  SMTP_PORT: string,
+  SMTP_USER: string,
+  SMTP_PASS: string,
+  SMTP_FROM: string,
+},
  
 }
 
 
 const loadEnvVariables = (): EnvConfig => {
-    const requiredEnvVariables: string[] = ["PORT", "DB_URL", "NODE_ENV", "BCRYPT_SALT_ROUND", "JWT_ACCESS_EXPIRES", "JWT_ACCESS_SECRET", "SUPER_ADMIN_EMAIL", "SUPER_ADMIN_PASSWORD", "JWT_REFRESH_SECRET", "JWT_REFRESH_EXPIRES",  "FRONTEND_URL",
-       
- ];
+    const requiredEnvVariables: string[] = ["PORT", "DB_URL", "NODE_ENV", "BCRYPT_SALT_ROUND", "JWT_ACCESS_EXPIRES", "JWT_ACCESS_SECRET", "SUPER_ADMIN_EMAIL", "SUPER_ADMIN_PASSWORD", "JWT_REFRESH_SECRET", "JWT_REFRESH_EXPIRES",  "FRONTEND_URL", "EXPRESS_SESSION_SECRET", "EMAIL_SENDER_SMTP_HOST", "EMAIL_SENDER_SMTP_PORT", "EMAIL_SENDER_SMTP_USER", "EMAIL_SENDER_SMTP_PASS", "EMAIL_SENDER_SMTP_FROM"];
 
     requiredEnvVariables.forEach(key => {
         if (!process.env[key]) {
@@ -51,8 +55,13 @@ const loadEnvVariables = (): EnvConfig => {
 
   EXPRESS_SESSION_SECRET: process.env.EXPRESS_SESSION_SECRET as string,
   FRONTEND_URL: process.env.FRONTEND_URL as string,
-
-  
+    EMAIL_SENDER: {
+    SMTP_HOST: process.env.EMAIL_SENDER_SMTP_HOST as string,
+    SMTP_PORT: process.env.EMAIL_SENDER_SMTP_PORT as string,
+    SMTP_USER: process.env.EMAIL_SENDER_SMTP_USER as string,
+    SMTP_PASS: process.env.EMAIL_SENDER_SMTP_PASS as string,
+    SMTP_FROM: process.env.EMAIL_SENDER_SMTP_FROM as string,
+    }
 };
 
 }
