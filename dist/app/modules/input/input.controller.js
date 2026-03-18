@@ -16,6 +16,7 @@ exports.deleteFormField = exports.updateFormField = exports.getFromInputByType =
 const input_services_1 = require("./input.services");
 const http_status_codes_1 = __importDefault(require("http-status-codes"));
 const createFormField = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(req.body);
     const result = yield input_services_1.FormFieldService.createField(req.body);
     res.status(201).json({
         success: true,

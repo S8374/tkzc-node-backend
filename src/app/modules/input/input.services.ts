@@ -25,6 +25,14 @@ const createField = async (payload: IFormField) => {
     }
   }
 
+  // ✅ For static fields, ensure staticValue is provided
+  if (payload.type === 'static' && !payload.staticValue) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      `Static fields must have a staticValue`
+    );
+  }
+
   return await FormFieldModel.create({
     ...payload,
     tab,
@@ -39,11 +47,20 @@ const getFieldsByPaymentMethod = async (paymentMethodId: string) => {
     isActive: true,
   }).sort({ order: 1 });
 };
+
 const getInputByTab = async (tab: string) => {
   return await FormFieldModel.find({ tab }).sort({ order: 1 });
 };
+
 // Update
 const updateField = async (id: string, payload: Partial<IFormField>) => {
+  // ✅ For static fields, validate staticValue if type is changing to static
+  if (payload.type === 'static' && !payload.staticValue) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      `Static fields must have a staticValue`
+    );
+  }
 
   if (payload.isBonusField) {
     const field = await FormFieldModel.findById(id);
@@ -51,7 +68,7 @@ const updateField = async (id: string, payload: Partial<IFormField>) => {
     const existingBonus = await FormFieldModel.findOne({
       tab: field?.tab,
       isBonusField: true,
-      _id: { $ne: id }, // ignore current field
+      _id: { $ne: id },
     });
 
     if (existingBonus) {
@@ -66,6 +83,7 @@ const updateField = async (id: string, payload: Partial<IFormField>) => {
     new: true,
   });
 };
+
 // Delete
 const deleteField = async (id: string) => {
   return await FormFieldModel.findByIdAndDelete(id);

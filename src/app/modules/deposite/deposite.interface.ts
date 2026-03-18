@@ -6,7 +6,6 @@ export interface ITittle {
   description: string;
   isActive: boolean;
   tab: string;
-
   createdAt?: Date;
   updatedAt?: Date;
 }

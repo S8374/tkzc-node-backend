@@ -7,6 +7,6 @@ const router = Router()
 
 router.post("/login", AuthControllers.credentialsLogin)
 router.get("/me",     checkAuth(...Object.values(Role)),AuthControllers.getMe); 
-router.post("/logout", AuthControllers.logout)
+router.post("/logout", checkAuth(...Object.values(Role)), AuthControllers.logout)
 
 export const AuthRoutes = router;

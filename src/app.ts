@@ -15,6 +15,7 @@ app.use(expressSession({
     resave: false,
     saveUninitialized: false
 }))
+
 app.use(cookieParser())
 app.use(express.json())
 app.set("trust proxy", 1);

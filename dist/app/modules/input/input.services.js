@@ -33,6 +33,10 @@ const createField = (payload) => __awaiter(void 0, void 0, void 0, function* () 
             throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, `Bonus field already exists for tab "${tab}"`);
         }
     }
+    // ✅ For static fields, ensure staticValue is provided
+    if (payload.type === 'static' && !payload.staticValue) {
+        throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, `Static fields must have a staticValue`);
+    }
     return yield input_model_1.FormFieldModel.create(Object.assign(Object.assign({}, payload), { tab, isBonusField: isBonus }));
 });
 // Get by payment method
@@ -47,12 +51,16 @@ const getInputByTab = (tab) => __awaiter(void 0, void 0, void 0, function* () {
 });
 // Update
 const updateField = (id, payload) => __awaiter(void 0, void 0, void 0, function* () {
+    // ✅ For static fields, validate staticValue if type is changing to static
+    if (payload.type === 'static' && !payload.staticValue) {
+        throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, `Static fields must have a staticValue`);
+    }
     if (payload.isBonusField) {
         const field = yield input_model_1.FormFieldModel.findById(id);
         const existingBonus = yield input_model_1.FormFieldModel.findOne({
             tab: field === null || field === void 0 ? void 0 : field.tab,
             isBonusField: true,
-            _id: { $ne: id }, // ignore current field
+            _id: { $ne: id },
         });
         if (existingBonus) {
             throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, `Bonus field already exists for tab "${field === null || field === void 0 ? void 0 : field.tab}"`);

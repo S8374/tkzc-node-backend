@@ -17,7 +17,7 @@ const formFieldSchema = new mongoose_1.Schema({
     },
     type: {
         type: String,
-        enum: ["text", "number", "textarea", "screenshot"],
+        enum: ["text", "number", "textarea", "screenshot", "static"],
         required: true,
     },
     placeholder: String,
@@ -38,6 +38,14 @@ const formFieldSchema = new mongoose_1.Schema({
         default: true,
     },
     isBonusField: {
+        type: Boolean,
+        default: false
+    },
+    staticValue: {
+        type: String,
+        default: ''
+    },
+    isCopyable: {
         type: Boolean,
         default: false
     }

@@ -3,6 +3,7 @@ import { FormFieldService } from "./input.services";
 import httpStatus from "http-status-codes";
 
 export const createFormField = async (req: Request, res: Response) => {
+  console.log (req.body)
   const result = await FormFieldService.createField(req.body);
 
   res.status(201).json({
