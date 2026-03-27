@@ -23,15 +23,12 @@ export interface IPaymentMethod {
   updatedAt?: Date;
 }
 
-
-
-
-
 export interface IInstruction {
   _id?: Types.ObjectId;
   step: number;
   text: string;
   tab: string;
+  paymentMethodId?: Types.ObjectId; // ✅ NEW: link to specific payment method
   isActive?: boolean;
   createdAt?: Date;
   updatedAt?: Date;

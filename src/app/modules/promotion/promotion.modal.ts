@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, Types } from "mongoose";
 import { IPromotionBonus } from "./promotion.interface";
 
 const promotionSchema = new Schema<IPromotionBonus>(
@@ -16,6 +16,14 @@ const promotionSchema = new Schema<IPromotionBonus>(
     value: { type: Number, required: true },
 
     minDeposit: { type: Number },
+
+    maxBonus: { type: Number }, // ✅ NEW: maximum bonus cap
+
+    paymentMethodId: {           // ✅ NEW: link to payment method
+      type: Types.ObjectId,
+      ref: "PaymentMethod",
+      index: true
+    },
 
     isActive: { type: Boolean, default: true },
 

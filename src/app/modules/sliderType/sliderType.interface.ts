@@ -3,6 +3,9 @@ export interface ISliderType {
     description?: string;  // optional description
     isActive?: boolean;
     iconUrl?:string;
+    gameType?: string; // e.g., "action", "adventure"
+    providerCode?: string; // e.g., "providerA", "providerB"
+    providerName?: string; // e.g., "Provider A", "Provider B"
     createdAt?: Date;
     updatedAt?: Date;
 }

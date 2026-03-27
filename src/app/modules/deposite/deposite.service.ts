@@ -40,20 +40,64 @@ const updatePaymentMethod = async (
 const deletePaymentMethod = async (id: string) => {
   return await PaymentMethodModel.findByIdAndDelete(id);
 };
-// Create
-const createInstruction = async (payload: IInstruction) => {
-  return await InstructionModel.create(payload);
-};
+
 
 // Get All
 const getAllInstructions = async () => {
   return await InstructionModel.find().sort({ step: 1 });
 };
 
-// Get By Type (important for frontend filtering)
-const getInstructionsByType = async (tab: string) => {
-  return await InstructionModel.find({ tab, isActive: true }).sort({ step: 1 });
+//New 
+
+// Create instruction with payment method validation
+const createInstruction = async (payload: IInstruction) => {
+  // Validate paymentMethodId if provided
+  if (payload.paymentMethodId) {
+    const paymentMethod = await PaymentMethodModel.findById(payload.paymentMethodId);
+    if (!paymentMethod) {
+      throw new AppError(httpStatus.BAD_REQUEST, "Payment method not found");
+    }
+    
+    // Check if payment method belongs to the same tab
+    if (paymentMethod.tab !== payload.tab) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST, 
+        `Payment method "${paymentMethod.name}" belongs to tab "${paymentMethod.tab}", not "${payload.tab}"`
+      );
+    }
+  }
+
+  return await InstructionModel.create(payload);
 };
+
+
+
+// Get instructions by payment method
+const getInstructionsByPaymentMethod = async (paymentMethodId: string) => {
+  // Validate payment method exists
+  const paymentMethod = await PaymentMethodModel.findById(paymentMethodId);
+  if (!paymentMethod) {
+    throw new AppError(httpStatus.NOT_FOUND, "Payment method not found");
+  }
+
+  return await InstructionModel.find({
+    paymentMethodId,
+    isActive: true,
+  }).sort({ step: 1 });
+};
+
+// Get instructions by type (existing - modified)
+const getInstructionsByType = async (tab: string, paymentMethodId?: string) => {
+  const filter: any = { tab, isActive: true };
+  if (paymentMethodId) {
+    filter.paymentMethodId = paymentMethodId;
+  }
+  return await InstructionModel.find(filter).sort({ step: 1 });
+};
+
+
+
+
 
 // Get Single
 const getSingleInstruction = async (id: string) => {
@@ -130,6 +174,8 @@ const deleteTittle = async (id: string) => {
 };
 
 
+
+
 export const PaymentMethodService = {
   createPaymentMethod,
   getAllPaymentMethods,
@@ -151,4 +197,7 @@ export const PaymentMethodService = {
   getSingleTittle,
   updateTittle,
   deleteTittle,
+
+    getInstructionsByPaymentMethod,
+
 };

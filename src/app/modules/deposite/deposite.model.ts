@@ -1,5 +1,5 @@
 
-import { Schema, model } from "mongoose";
+import { Schema, Types, model } from "mongoose";
 import { IInstruction, IPaymentMethod, ITittle } from "./deposite.interface";
 
 const paymentMethodSchema = new Schema<IPaymentMethod>(
@@ -63,7 +63,12 @@ const instructionSchema = new Schema<IInstruction>(
     tab: {
       type: String,
       required: true,
-      index: true, 
+      index: true,
+    },
+    paymentMethodId: {           // ✅ NEW: link to payment method
+      type: Types.ObjectId,
+      ref: "PaymentMethod",
+      index: true,
     },
     isActive: {
       type: Boolean,
