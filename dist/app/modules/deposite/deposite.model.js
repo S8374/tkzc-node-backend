@@ -34,6 +34,10 @@ const paymentMethodSchema = new mongoose_1.Schema({
         default: true,
         index: true,
     },
+    tournOver: {
+        type: Number,
+        default: 0,
+    }
 }, {
     timestamps: true,
     versionKey: false,
@@ -52,6 +56,11 @@ const instructionSchema = new mongoose_1.Schema({
     tab: {
         type: String,
         required: true,
+        index: true,
+    },
+    paymentMethodId: {
+        type: mongoose_1.Types.ObjectId,
+        ref: "PaymentMethod",
         index: true,
     },
     isActive: {

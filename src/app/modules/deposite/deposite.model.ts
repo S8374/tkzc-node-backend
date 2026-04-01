@@ -35,6 +35,10 @@ const paymentMethodSchema = new Schema<IPaymentMethod>(
       default: true,
       index: true,
     },
+    tournOver: {
+      type: Number,
+      default: 0,
+    }
   },
   {
     timestamps: true,

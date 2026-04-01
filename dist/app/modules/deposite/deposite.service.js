@@ -46,17 +46,45 @@ const updatePaymentMethod = (id, payload) => __awaiter(void 0, void 0, void 0, f
 const deletePaymentMethod = (id) => __awaiter(void 0, void 0, void 0, function* () {
     return yield deposite_model_1.PaymentMethodModel.findByIdAndDelete(id);
 });
-// Create
-const createInstruction = (payload) => __awaiter(void 0, void 0, void 0, function* () {
-    return yield deposite_model_1.InstructionModel.create(payload);
-});
 // Get All
 const getAllInstructions = () => __awaiter(void 0, void 0, void 0, function* () {
     return yield deposite_model_1.InstructionModel.find().sort({ step: 1 });
 });
-// Get By Type (important for frontend filtering)
-const getInstructionsByType = (tab) => __awaiter(void 0, void 0, void 0, function* () {
-    return yield deposite_model_1.InstructionModel.find({ tab, isActive: true }).sort({ step: 1 });
+//New 
+// Create instruction with payment method validation
+const createInstruction = (payload) => __awaiter(void 0, void 0, void 0, function* () {
+    // Validate paymentMethodId if provided
+    if (payload.paymentMethodId) {
+        const paymentMethod = yield deposite_model_1.PaymentMethodModel.findById(payload.paymentMethodId);
+        if (!paymentMethod) {
+            throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "Payment method not found");
+        }
+        // Check if payment method belongs to the same tab
+        if (paymentMethod.tab !== payload.tab) {
+            throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, `Payment method "${paymentMethod.name}" belongs to tab "${paymentMethod.tab}", not "${payload.tab}"`);
+        }
+    }
+    return yield deposite_model_1.InstructionModel.create(payload);
+});
+// Get instructions by payment method
+const getInstructionsByPaymentMethod = (paymentMethodId) => __awaiter(void 0, void 0, void 0, function* () {
+    // Validate payment method exists
+    const paymentMethod = yield deposite_model_1.PaymentMethodModel.findById(paymentMethodId);
+    if (!paymentMethod) {
+        throw new AppError_1.default(http_status_codes_1.default.NOT_FOUND, "Payment method not found");
+    }
+    return yield deposite_model_1.InstructionModel.find({
+        paymentMethodId,
+        isActive: true,
+    }).sort({ step: 1 });
+});
+// Get instructions by type (existing - modified)
+const getInstructionsByType = (tab, paymentMethodId) => __awaiter(void 0, void 0, void 0, function* () {
+    const filter = { tab, isActive: true };
+    if (paymentMethodId) {
+        filter.paymentMethodId = paymentMethodId;
+    }
+    return yield deposite_model_1.InstructionModel.find(filter).sort({ step: 1 });
 });
 // Get Single
 const getSingleInstruction = (id) => __awaiter(void 0, void 0, void 0, function* () {
@@ -131,4 +159,5 @@ exports.PaymentMethodService = {
     getSingleTittle,
     updateTittle,
     deleteTittle,
+    getInstructionsByPaymentMethod,
 };

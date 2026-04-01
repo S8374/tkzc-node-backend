@@ -12,6 +12,12 @@ const promotionSchema = new mongoose_1.Schema({
     },
     value: { type: Number, required: true },
     minDeposit: { type: Number },
+    maxBonus: { type: Number }, // ✅ NEW: maximum bonus cap
+    paymentMethodId: {
+        type: mongoose_1.Types.ObjectId,
+        ref: "PaymentMethod",
+        index: true
+    },
     isActive: { type: Boolean, default: true },
     startDate: { type: Date },
     endDate: { type: Date },

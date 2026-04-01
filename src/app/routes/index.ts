@@ -12,6 +12,7 @@ import { DepositRequestRoutes } from "../modules/depositRequest/depositRequest.r
 import { PartnerRoutes } from "../modules/partner/partner.route"
 import { CryptoExchangeRoutes } from "../modules/cryptoExchange/cryptoExchange.route"
 import { SupportRoutes } from "../modules/support/support.route"
+import { WithdrawRequestRoutes } from "../modules/withdrawRequest/withdrawRequest.route"
 
 export const router = Router()
 
@@ -60,6 +61,10 @@ const moduleRoutes = [
     {
         path: "/deposit-requests",
         route: DepositRequestRoutes
+    },
+    {
+        path: "/withdraw-requests",
+        route: WithdrawRequestRoutes
     },
     {
         path: "/partners",

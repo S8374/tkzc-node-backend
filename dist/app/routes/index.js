@@ -15,6 +15,7 @@ const depositRequest_route_1 = require("../modules/depositRequest/depositRequest
 const partner_route_1 = require("../modules/partner/partner.route");
 const cryptoExchange_route_1 = require("../modules/cryptoExchange/cryptoExchange.route");
 const support_route_1 = require("../modules/support/support.route");
+const withdrawRequest_route_1 = require("../modules/withdrawRequest/withdrawRequest.route");
 exports.router = (0, express_1.Router)();
 const moduleRoutes = [
     {
@@ -60,6 +61,10 @@ const moduleRoutes = [
     {
         path: "/deposit-requests",
         route: depositRequest_route_1.DepositRequestRoutes
+    },
+    {
+        path: "/withdraw-requests",
+        route: withdrawRequest_route_1.WithdrawRequestRoutes
     },
     {
         path: "/partners",

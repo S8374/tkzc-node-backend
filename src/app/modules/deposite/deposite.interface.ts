@@ -17,6 +17,9 @@ export interface IPaymentMethod {
   icon: string;
   tab: string;
   description?: string;
+
+  tournOver: number;
+
   order: number;
   isActive: boolean;
   createdAt?: Date;
