@@ -25,6 +25,9 @@ const depositRequestSchema = new Schema<IDepositRequest>(
     senderNumber: { type: String },
     walletAddress: { type: String },
     
+    turnoverMultiplier: { type: Number },
+    turnoverRequired: { type: Number },
+    
     status: { 
       type: String, 
       enum: Object.values(DepositStatus), 

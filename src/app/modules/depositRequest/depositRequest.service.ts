@@ -12,7 +12,7 @@ const createDepositRequest = async (userId: string, payload: Partial<IDepositReq
   session.startTransaction();
 
   try {
-    console.log("userId",userId);
+    console.log("userId", userId);
     // Get user details
     const user = await User.findById(userId);
     if (!user) {
@@ -36,7 +36,7 @@ const createDepositRequest = async (userId: string, payload: Partial<IDepositReq
         // Check minimum deposit
         if (promotion.minDeposit && payload.amount! < promotion.minDeposit) {
           throw new AppError(
-            httpStatus.BAD_REQUEST, 
+            httpStatus.BAD_REQUEST,
             `Minimum deposit for this promotion is ৳${promotion.minDeposit}`
           );
         }
@@ -58,6 +58,8 @@ const createDepositRequest = async (userId: string, payload: Partial<IDepositReq
       userName: user.name,
       userEmail: user.email,
       ...payload,
+      turnoverMultiplier: payload.turnoverMultiplier,
+      turnoverRequired: payload.turnoverRequired,
       bonusAmount,
       status: DepositStatus.PENDING
     }], { session });
@@ -73,21 +75,21 @@ const createDepositRequest = async (userId: string, payload: Partial<IDepositReq
 };
 
 const getAllDepositRequests = async (query: any) => {
-  const { 
-    page = 1, 
-    limit = 10, 
-    status, 
+  const {
+    page = 1,
+    limit = 10,
+    status,
     depositType,
     search,
     startDate,
-    endDate 
+    endDate
   } = query;
 
   const filter: any = {};
 
   if (status) filter.status = status;
   if (depositType) filter.depositType = depositType;
-  
+
   if (search) {
     filter.$or = [
       { userName: { $regex: search, $options: "i" } },
@@ -165,17 +167,17 @@ const getSingleDepositRequest = async (id: string) => {
   const request = await DepositRequest.findById(id)
     .populate("user", "name email phone")
     .populate("processedBy", "name");
-  
+
   if (!request) {
     throw new AppError(httpStatus.NOT_FOUND, "Deposit request not found");
   }
-  
+
   return request;
 };
 
 const processDepositRequest = async (
-  id: string, 
-  adminId: string, 
+  id: string,
+  adminId: string,
   status: DepositStatus.APPROVED | DepositStatus.REJECTED,
   adminNote?: string
 ) => {
@@ -190,7 +192,7 @@ const processDepositRequest = async (
 
     if (request.status !== DepositStatus.PENDING) {
       throw new AppError(
-        httpStatus.BAD_REQUEST, 
+        httpStatus.BAD_REQUEST,
         `Request already ${request.status.toLowerCase()}`
       );
     }
@@ -205,16 +207,21 @@ const processDepositRequest = async (
     // If approved, add to wallet
     if (status === DepositStatus.APPROVED) {
       const totalAmount = request.amount + (request.bonusAmount || 0);
-      
+
       const wallet = await Wallet.findOne({ user: request.user }).session(session);
       if (wallet) {
         wallet.balance += totalAmount;
+        // Also increase required turnover if applicable
+        if (request.turnoverRequired && request.turnoverRequired > 0) {
+          wallet.requiredTurnover = (wallet.requiredTurnover || 0) + request.turnoverRequired;
+        }
         await wallet.save({ session });
       } else {
         // Create wallet if doesn't exist
         await Wallet.create([{
           user: request.user,
-          balance: totalAmount
+          balance: totalAmount,
+          requiredTurnover: request.turnoverRequired || 0
         }], { session });
       }
     }

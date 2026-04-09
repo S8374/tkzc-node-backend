@@ -27,6 +27,7 @@ export interface IUser {
     address?: string;
     imHuman:boolean;
     referralCode?: string;    // optional
+    referredBy?: Types.ObjectId; // the user who referred this user
     isDeleted?: boolean;
     isActive?: IsActive;
     isVerified?: boolean;

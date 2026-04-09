@@ -27,6 +27,16 @@ const walletSchema = new Schema<IWallet>(
       type: String,
       enum: Object.values(WalletProtocol),
     },
+    
+    currentTurnover: {
+      type: Number,
+      default: 0,
+    },
+    
+    requiredTurnover: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true, versionKey: false }
 );

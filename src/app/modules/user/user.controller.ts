@@ -56,8 +56,29 @@ const getWallet = catchAsync(async (req: Request, res: Response, next: NextFunct
 
 
 
+// Get User Stats (Subordinates)
+const getUserStats = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const userId = req.user?.userId;
+  if (!userId) {
+    res.status(httpStatus.UNAUTHORIZED).json({
+      success: false,
+      message: "Unauthorized access",
+    });
+    return;
+  }
+
+  const stats = await UserServices.getUserStats(userId);
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "User stats fetched successfully",
+    data: stats,
+  });
+});
+
 export const UserControllers = {
     createUser,
-    getWallet
+    getWallet,
+    getUserStats
 }
 

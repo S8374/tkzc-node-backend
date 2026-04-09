@@ -54,6 +54,18 @@ const createWithdrawRequest = async (userId: string, payload: Partial<IWithdrawR
       throw new AppError(httpStatus.BAD_REQUEST, "Insufficient balance for withdrawal");
     }
 
+    // Check Turnover Condition
+    const turnOverRequired = wallet.requiredTurnover || 0;
+    const currentTurnover = wallet.currentTurnover || 0;
+
+    if (currentTurnover < turnOverRequired) {
+      const remaining = (turnOverRequired - currentTurnover).toFixed(2);
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        `Withdrawal blocked. You need ৳${remaining} more turnover to meet the ৳${turnOverRequired} requirement.`
+      );
+    }
+
     wallet.balance -= amount;
     await wallet.save({ session });
 

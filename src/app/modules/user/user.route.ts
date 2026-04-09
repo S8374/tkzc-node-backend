@@ -10,6 +10,7 @@ const router = Router()
 
 router.post("/register", UserControllers.createUser);
 router.get("/wallet", checkAuth(Role.USER, Role.ADMIN, Role.SUPER_ADMIN), UserControllers.getWallet);
+router.get("/stats", checkAuth(Role.USER, Role.ADMIN, Role.SUPER_ADMIN), UserControllers.getUserStats);
 router.patch("/wallet/update", checkAuth(Role.USER, Role.ADMIN, Role.SUPER_ADMIN), WalletControllers.updateWallet);
 
 // /api/v1/user/:id

@@ -12,6 +12,8 @@ export interface IWallet {
   balance: number;            // default 0
   walletAddress?: string;     // optional
   protocol?: WalletProtocol;  // optional
+  currentTurnover: number;     // Current accumulated turnover
+  requiredTurnover: number;    // Total turnover required for withdrawal
   createdAt?: Date;
   updatedAt?: Date;
 }

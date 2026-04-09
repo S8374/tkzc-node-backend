@@ -41,6 +41,10 @@ export interface IDepositRequest {
   senderNumber?: string;
   walletAddress?: string;
   
+  // Turnover requirement
+  turnoverMultiplier?: number;
+  turnoverRequired?: number;
+  
   // Status
   status: DepositStatus;
   adminNote?: string;

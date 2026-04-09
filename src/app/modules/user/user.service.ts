@@ -8,7 +8,7 @@ import { Wallet } from "../wallet/wallet.model";
 import { createUserTokens } from "../../utils/userTokens";
 
 const createUser = async (payload: Partial<IUser>) => {
-  const { name, email, password, referralCode, imHuman, ...rest } = payload;
+  const { name, email, password, referralCode: incomingReferralCode, imHuman, ...rest } = payload;
 
   if (!name || !password) {
     throw new AppError(httpStatus.BAD_REQUEST, "Username and password are required");
@@ -27,16 +27,29 @@ const createUser = async (payload: Partial<IUser>) => {
     if (isEmailExist) throw new AppError(httpStatus.BAD_REQUEST, "Email already exists");
   }
 
+  // Find referring user if code provided
+  let referredBy;
+  if (incomingReferralCode) {
+    const referrer = await User.findOne({ referralCode: incomingReferralCode });
+    if (referrer) {
+      referredBy = referrer._id;
+    }
+  }
+
   const hashedPassword = await bcryptjs.hash(password, Number(envVars.BCRYPT_SALT_ROUND));
 
   const authProvider: IAuthProvider = { provider: "credentials", providerId: name };
 
+  // Generate unique referral code for the new user
+  const newReferralCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+
   const user = await User.create({
     name,
-    email: normalizedEmail,          // ← undefined if not provided
+    email: normalizedEmail,
     password: hashedPassword,
-    referralCode,
-    imHuman: !!imHuman,              // make sure it's boolean
+    referralCode: newReferralCode,
+    referredBy,
+    imHuman: !!imHuman,
     auths: [authProvider],
     ...rest,
   });
@@ -45,10 +58,18 @@ const createUser = async (payload: Partial<IUser>) => {
   await Wallet.create({ user: user._id, balance: 0 });
 
   return {
-      accessToken: userTokens.accessToken,
+    accessToken: userTokens.accessToken,
     refreshToken: userTokens.refreshToken,
     user
   };
 };
 
-export const UserServices = { createUser };
+const getUserStats = async (userId: string) => {
+  const directSubordinatesCount = await User.countDocuments({ referredBy: userId });
+  return {
+    directSubordinatesCount,
+    newDirectSubordinatesCount: 0, 
+  };
+};
+
+export const UserServices = { createUser, getUserStats };

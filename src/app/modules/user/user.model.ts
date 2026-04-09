@@ -21,7 +21,8 @@ email: {
     phone: { type: String },
     picture: { type: String },
     address: { type: String },
-    referralCode: { type: String }, // optional
+    referralCode: { type: String, unique: true }, // unique referral code per user
+    referredBy: { type: Schema.Types.ObjectId, ref: "User" }, // the user who referred this user
     isDeleted: { type: Boolean, default: false },
     imHuman :{type:Boolean , default : false},
     isActive: { type: String, enum: Object.values(IsActive), default: IsActive.ACTIVE },
