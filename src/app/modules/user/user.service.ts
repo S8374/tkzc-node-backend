@@ -72,4 +72,86 @@ const getUserStats = async (userId: string) => {
   };
 };
 
-export const UserServices = { createUser, getUserStats };
+const updateCurrentUser = async (
+  userId: string,
+  payload: {
+    email?: string;
+    name?: string;
+    phone?: string;
+    address?: string;
+    currentPassword?: string;
+  }
+) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  if (payload.email !== undefined) {
+    if (!payload.currentPassword) {
+      throw new AppError(httpStatus.BAD_REQUEST, "Current password is required to update email");
+    }
+
+    const isPasswordMatched = await bcryptjs.compare(payload.currentPassword, user.password as string);
+    if (!isPasswordMatched) {
+      throw new AppError(httpStatus.BAD_REQUEST, "Current password is incorrect");
+    }
+
+    const normalizedEmail = payload.email.trim().toLowerCase();
+    if (!normalizedEmail) {
+      throw new AppError(httpStatus.BAD_REQUEST, "Email is required");
+    }
+
+    const emailExists = await User.findOne({ email: normalizedEmail, _id: { $ne: userId } });
+    if (emailExists) {
+      throw new AppError(httpStatus.BAD_REQUEST, "Email already exists");
+    }
+
+    user.email = normalizedEmail;
+  }
+
+  if (payload.name !== undefined && payload.name.trim()) {
+    const nameExists = await User.findOne({ name: payload.name.trim(), _id: { $ne: userId } });
+    if (nameExists) {
+      throw new AppError(httpStatus.BAD_REQUEST, "Username already exists");
+    }
+    user.name = payload.name.trim();
+  }
+
+  if (payload.phone !== undefined) {
+    user.phone = payload.phone;
+  }
+
+  if (payload.address !== undefined) {
+    user.address = payload.address;
+  }
+
+  await user.save();
+  const updatedUser = await User.findById(userId).select("-password -__v");
+  return updatedUser;
+};
+
+const changeLoginPassword = async (
+  userId: string,
+  payload: {
+    currentPassword: string;
+    newPassword: string;
+  }
+) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  const isPasswordMatched = await bcryptjs.compare(payload.currentPassword, user.password as string);
+  if (!isPasswordMatched) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Current password is incorrect");
+  }
+
+  user.password = await bcryptjs.hash(payload.newPassword, Number(envVars.BCRYPT_SALT_ROUND));
+  await user.save();
+
+  return true;
+};
+
+export const UserServices = { createUser, getUserStats, updateCurrentUser, changeLoginPassword };

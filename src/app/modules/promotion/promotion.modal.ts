@@ -19,6 +19,10 @@ const promotionSchema = new Schema<IPromotionBonus>(
 
     maxBonus: { type: Number }, // ✅ NEW: maximum bonus cap
 
+    bonusPercentage: { type: Number, default: 0 },
+
+    turnoverValue: { type: Number, default: 0 },
+
     paymentMethodId: {           // ✅ NEW: link to payment method
       type: Types.ObjectId,
       ref: "PaymentMethod",

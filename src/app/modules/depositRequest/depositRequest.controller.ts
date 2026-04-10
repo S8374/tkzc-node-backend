@@ -54,13 +54,15 @@ const getSingleDepositRequest = catchAsync(async (req: Request, res: Response) =
 
 const approveDepositRequest = catchAsync(async (req: Request, res: Response) => {
   const adminId = req.user?.userId;
-  const { adminNote } = req.body;
+  const { adminNote, bonusAmount, turnoverRequired } = req.body;
   
   const result = await DepositRequestService.processDepositRequest(
     req.params.id,
     adminId,
     DepositStatus.APPROVED,
-    adminNote
+    adminNote,
+    bonusAmount,
+    turnoverRequired
   );
 
   sendResponse(res, {

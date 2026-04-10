@@ -6,6 +6,12 @@ import { WithdrawRequestController } from "./withdrawRequest.controller";
 const router = Router();
 
 // User routes
+router.get(
+  "/eligibility",
+  checkAuth(Role.USER, Role.ADMIN, Role.SUPER_ADMIN),
+  WithdrawRequestController.getWithdrawEligibility
+);
+
 router.post(
   "/",
   checkAuth(Role.USER, Role.ADMIN, Role.SUPER_ADMIN),

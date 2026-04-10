@@ -76,9 +76,51 @@ const getUserStats = catchAsync(async (req: Request, res: Response, next: NextFu
   });
 });
 
+const updateCurrentUser = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user?.userId;
+  if (!userId) {
+    res.status(httpStatus.UNAUTHORIZED).json({
+      success: false,
+      message: "Unauthorized access",
+    });
+    return;
+  }
+
+  const result = await UserServices.updateCurrentUser(userId, req.body);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "User profile updated successfully",
+    data: result,
+  });
+});
+
+const changeLoginPassword = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user?.userId;
+  if (!userId) {
+    res.status(httpStatus.UNAUTHORIZED).json({
+      success: false,
+      message: "Unauthorized access",
+    });
+    return;
+  }
+
+  await UserServices.changeLoginPassword(userId, req.body);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Password changed successfully",
+    data: null,
+  });
+});
+
 export const UserControllers = {
     createUser,
     getWallet,
-    getUserStats
+    getUserStats,
+    updateCurrentUser,
+    changeLoginPassword,
 }
 

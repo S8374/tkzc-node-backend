@@ -14,6 +14,7 @@ import { CryptoExchangeRoutes } from "../modules/cryptoExchange/cryptoExchange.r
 import { SupportRoutes } from "../modules/support/support.route"
 import { WithdrawRequestRoutes } from "../modules/withdrawRequest/withdrawRequest.route"
 import { AutoDepositRoutes } from "../modules/auto-deposite/auto-deposite.route"
+import { DownloadAppRoutes } from "../modules/downloadApp/downloadApp.route"
 
 export const router = Router()
 
@@ -82,6 +83,10 @@ const moduleRoutes = [
     {
         path: "/auto-deposits",
         route: AutoDepositRoutes
+    },
+    {
+        path: "/download-apps",
+        route: DownloadAppRoutes
     }
 ]
 

@@ -12,6 +12,8 @@ export interface IPromotionBonus {
 
   minDeposit?: number;         // minimum deposit to apply
   maxBonus?: number;           // ✅ NEW: maximum bonus amount (cap)
+  bonusPercentage?: number;
+  turnoverValue?: number;
 
   paymentMethodId?: Types.ObjectId; // ✅ NEW: link to specific payment method
 

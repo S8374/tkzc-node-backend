@@ -12,6 +12,14 @@ const createPromotion = async (payload: IPromotionBonus) => {
     throw new AppError(httpStatus.BAD_REQUEST, "Maximum bonus cannot be negative");
   }
 
+  if (payload.bonusPercentage !== undefined && payload.bonusPercentage < 0) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Bonus percentage cannot be negative");
+  }
+
+  if (payload.turnoverValue !== undefined && payload.turnoverValue < 0) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Turnover value cannot be negative");
+  }
+
   // Validate value
   if (payload.value <= 0) {
     throw new AppError(httpStatus.BAD_REQUEST, "Bonus value must be greater than 0");
@@ -94,6 +102,14 @@ const updatePromotion = async (
   // Validate value if provided
   if (payload.value && payload.value <= 0) {
     throw new AppError(httpStatus.BAD_REQUEST, "Bonus value must be greater than 0");
+  }
+
+  if (payload.bonusPercentage !== undefined && payload.bonusPercentage < 0) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Bonus percentage cannot be negative");
+  }
+
+  if (payload.turnoverValue !== undefined && payload.turnoverValue < 0) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Turnover value cannot be negative");
   }
 
   // Validate paymentMethodId if provided

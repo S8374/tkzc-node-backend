@@ -5,6 +5,18 @@ import { sendResponse } from "../../utils/sendResponse";
 import { WithdrawStatus } from "./withdrawRequest.interface";
 import { WithdrawRequestService } from "./withdrawRequest.service";
 
+const getWithdrawEligibility = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user?.userId;
+  const result = await WithdrawRequestService.getWithdrawEligibility(userId);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Withdraw eligibility retrieved successfully",
+    data: result,
+  });
+});
+
 const createWithdrawRequest = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user?.userId;
   const result = await WithdrawRequestService.createWithdrawRequest(userId, req.body);
@@ -102,6 +114,7 @@ const cancelWithdrawRequest = catchAsync(async (req: Request, res: Response) => 
 });
 
 export const WithdrawRequestController = {
+  getWithdrawEligibility,
   createWithdrawRequest,
   getAllWithdrawRequests,
   getUserWithdrawRequests,

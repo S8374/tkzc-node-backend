@@ -121,4 +121,6 @@ const tittleSchema = new Schema<ITittle>(
   }
 );
 
+
+
 export const TittleModel = model<ITittle>("Tittle", tittleSchema);

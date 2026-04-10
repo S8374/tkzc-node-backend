@@ -19,6 +19,34 @@ const parsePositiveInt = (value: unknown, fallback: number) => {
   return Math.floor(parsed);
 };
 
+const getWithdrawEligibility = async (userId: string) => {
+  const wallet = await Wallet.findOne({ user: userId });
+  if (!wallet) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Wallet not found");
+  }
+
+  const requiredTurnover = wallet.requiredTurnover || 0;
+  const currentTurnover = wallet.currentTurnover || 0;
+  const remainingTurnover = Math.max(requiredTurnover - currentTurnover, 0);
+  const hasTurnoverRequirement = requiredTurnover > 0;
+  const canWithdrawByTurnover = remainingTurnover <= 0;
+
+  return {
+    hasTurnoverRequirement,
+    canWithdrawByTurnover,
+    currentTurnover,
+    requiredTurnover,
+    remainingTurnover,
+    progressPercent:
+      requiredTurnover > 0 ? Math.min((currentTurnover / requiredTurnover) * 100, 100) : 100,
+    message: canWithdrawByTurnover
+      ? "Turnover requirement completed. You can submit withdraw request."
+      : `Withdrawal blocked. You must play at least ৳${remainingTurnover.toFixed(
+          2
+        )} more to complete the ৳${requiredTurnover.toFixed(2)} turnover requirement.`,
+  };
+};
+
 const createWithdrawRequest = async (userId: string, payload: Partial<IWithdrawRequest>) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -295,6 +323,7 @@ const cancelWithdrawRequest = async (id: string, userId: string) => {
 };
 
 export const WithdrawRequestService = {
+  getWithdrawEligibility,
   createWithdrawRequest,
   getAllWithdrawRequests,
   getUserWithdrawRequests,

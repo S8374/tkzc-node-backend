@@ -1,5 +1,5 @@
 import httpStatus from "http-status-codes";
-import { IDepositRequest, DepositStatus } from "./depositRequest.interface";
+import { IDepositRequest, DepositStatus, DepositType } from "./depositRequest.interface";
 import { DepositRequest } from "./depositRequest.model";
 import { Wallet } from "../wallet/wallet.model";
 import { User } from "../user/user.model";
@@ -17,6 +17,28 @@ const createDepositRequest = async (userId: string, payload: Partial<IDepositReq
     const user = await User.findById(userId);
     if (!user) {
       throw new AppError(httpStatus.NOT_FOUND, "User not found");
+    }
+
+    if (payload.depositType === DepositType.CRYPTO) {
+      const formData = payload.formData || {};
+      const proofUrl = payload.screenshot || formData.cryptoProof || formData.__cryptoProof;
+
+      if (!proofUrl) {
+        throw new AppError(httpStatus.BAD_REQUEST, "Crypto deposit proof screenshot is required");
+      }
+
+      const bdtEquivalent = Number(formData.cryptoBdtEquivalent || payload.amount || 0);
+      if (!Number.isFinite(bdtEquivalent) || bdtEquivalent <= 0) {
+        throw new AppError(httpStatus.BAD_REQUEST, "Invalid crypto converted amount");
+      }
+
+      payload.screenshot = proofUrl;
+      payload.amount = bdtEquivalent;
+      payload.formData = {
+        ...formData,
+        cryptoProof: proofUrl,
+        cryptoBdtEquivalent: bdtEquivalent,
+      };
     }
 
     // Calculate bonus if promotion applied
@@ -179,7 +201,9 @@ const processDepositRequest = async (
   id: string,
   adminId: string,
   status: DepositStatus.APPROVED | DepositStatus.REJECTED,
-  adminNote?: string
+  adminNote?: string,
+  bonusAmount?: number,
+  turnoverRequired?: number
 ) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -195,6 +219,14 @@ const processDepositRequest = async (
         httpStatus.BAD_REQUEST,
         `Request already ${request.status.toLowerCase()}`
       );
+    }
+
+    // Update request fields if provided by admin
+    if (bonusAmount !== undefined) {
+      request.bonusAmount = bonusAmount;
+    }
+    if (turnoverRequired !== undefined) {
+      request.turnoverRequired = turnoverRequired;
     }
 
     // Update request status
