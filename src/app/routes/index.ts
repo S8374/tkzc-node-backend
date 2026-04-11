@@ -15,6 +15,7 @@ import { SupportRoutes } from "../modules/support/support.route"
 import { WithdrawRequestRoutes } from "../modules/withdrawRequest/withdrawRequest.route"
 import { AutoDepositRoutes } from "../modules/auto-deposite/auto-deposite.route"
 import { DownloadAppRoutes } from "../modules/downloadApp/downloadApp.route"
+import { GameRoutes } from "../modules/game/game.route"
 
 export const router = Router()
 
@@ -87,6 +88,10 @@ const moduleRoutes = [
     {
         path: "/download-apps",
         route: DownloadAppRoutes
+    },
+    {
+        path: "/game",
+        route: GameRoutes
     }
 ]
 

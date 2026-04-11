@@ -2,13 +2,13 @@
   "name": "sms-node-backend",
   "version": "1.0.0",
   "main": "index.js",
-"scripts": {
-  "dev": "ts-node-dev --respawn --transpile-only ./src/server.ts",
-  "build": "tsc",
-  "start": "node dist/server.js",
-  "lint": "npx eslint ./src",
-  "test": "echo \"Error: no test specified\" && exit 1"
-},
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only ./src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "lint": "npx eslint ./src",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -32,6 +32,8 @@
     "typescript-eslint": "^8.35.1"
   },
   "dependencies": {
+    "@types/qs": "^6.15.0",
+    "axios": "^1.15.0",
     "bcryptjs": "^3.0.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -45,6 +47,7 @@
     "nodemailer": "^7.0.13",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
+    "qs": "^6.15.1",
     "redis": "^5.10.0",
     "zod": "^3.25.74"
   }
