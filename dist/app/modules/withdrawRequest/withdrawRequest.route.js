@@ -7,6 +7,7 @@ const user_interface_1 = require("../user/user.interface");
 const withdrawRequest_controller_1 = require("./withdrawRequest.controller");
 const router = (0, express_1.Router)();
 // User routes
+router.get("/eligibility", (0, checkAuth_1.checkAuth)(user_interface_1.Role.USER, user_interface_1.Role.ADMIN, user_interface_1.Role.SUPER_ADMIN), withdrawRequest_controller_1.WithdrawRequestController.getWithdrawEligibility);
 router.post("/", (0, checkAuth_1.checkAuth)(user_interface_1.Role.USER, user_interface_1.Role.ADMIN, user_interface_1.Role.SUPER_ADMIN), withdrawRequest_controller_1.WithdrawRequestController.createWithdrawRequest);
 router.get("/my-requests", (0, checkAuth_1.checkAuth)(user_interface_1.Role.USER, user_interface_1.Role.ADMIN, user_interface_1.Role.SUPER_ADMIN), withdrawRequest_controller_1.WithdrawRequestController.getUserWithdrawRequests);
 router.patch("/:id/cancel", (0, checkAuth_1.checkAuth)(user_interface_1.Role.USER, user_interface_1.Role.ADMIN, user_interface_1.Role.SUPER_ADMIN), withdrawRequest_controller_1.WithdrawRequestController.cancelWithdrawRequest);

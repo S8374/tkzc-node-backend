@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.GameRoutes = void 0;
+const express_1 = require("express");
+const game_controller_1 = require("./game.controller");
+const checkAuth_1 = require("../../middlewares/checkAuth");
+const user_interface_1 = require("../user/user.interface");
+const router = (0, express_1.Router)();
+router.post("/", game_controller_1.GameController.handleCallback);
+router.post("/callback", game_controller_1.GameController.handleCallback);
+router.get("/my-bets", (0, checkAuth_1.checkAuth)(user_interface_1.Role.USER, user_interface_1.Role.ADMIN, user_interface_1.Role.SUPER_ADMIN), game_controller_1.GameController.getUserBets);
+exports.GameRoutes = router;

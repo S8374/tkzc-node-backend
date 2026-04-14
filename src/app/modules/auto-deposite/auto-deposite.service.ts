@@ -4,6 +4,12 @@ import { DepositRequest } from "../depositRequest/depositRequest.model";
 import { DepositType, DepositStatus } from "../depositRequest/depositRequest.interface";
 import { User } from "../user/user.model";
 import { PaymentMethodModel } from "../deposite/deposite.model";
+import { Wallet } from "../wallet/wallet.model";
+
+const isSuccessfulAutoDeposit = (status?: string) => {
+  const normalized = String(status || "").trim().toLowerCase();
+  return normalized === "success" || normalized === "successful" || normalized === "paid" || normalized === "completed";
+};
 
 const handleCallback = async (payload: IAutoDeposit) => {
   // Save or update. If transaction_id already exists, skip or update.
@@ -71,6 +77,10 @@ const handleCallback = async (payload: IAutoDeposit) => {
           ? totalWithBonus * tournOverMultiplier
           : 0)).toFixed(2));
 
+        const requestStatus = isSuccessfulAutoDeposit(payload.status)
+          ? DepositStatus.APPROVED
+          : DepositStatus.PENDING;
+
         // Create a DepositRequest so it shows up in the admin dashboard
         await DepositRequest.create({
           user: user._id,
@@ -83,7 +93,8 @@ const handleCallback = async (payload: IAutoDeposit) => {
           turnoverMultiplier: tournOverMultiplier,
           turnoverRequired: turnoverRequired,
           transactionId: payload.transaction_id,
-          status: DepositStatus.PENDING,
+          status: requestStatus,
+          processedAt: requestStatus === DepositStatus.APPROVED ? new Date() : undefined,
           formData: {
             invoice_number: payload.invoice_number,
             session_code: payload.session_code,
@@ -97,6 +108,26 @@ const handleCallback = async (payload: IAutoDeposit) => {
             turnoverRequired,
           }
         });
+
+        // If callback is successful, immediately apply deposit and turnover lock to wallet.
+        if (requestStatus === DepositStatus.APPROVED) {
+          const wallet = await Wallet.findOne({ user: user._id });
+
+          if (wallet) {
+            wallet.balance = Number(((wallet.balance || 0) + totalWithBonus).toFixed(2));
+            if (turnoverRequired > 0) {
+              wallet.requiredTurnover = Number(((wallet.requiredTurnover || 0) + turnoverRequired).toFixed(2));
+            }
+            await wallet.save();
+          } else {
+            await Wallet.create({
+              user: user._id,
+              balance: totalWithBonus,
+              requiredTurnover: turnoverRequired > 0 ? turnoverRequired : 0,
+              currentTurnover: 0,
+            });
+          }
+        }
 
         // Also update the AutoDeposit log with these values
         await AutoDeposit.findByIdAndUpdate(autoDeposit._id, {

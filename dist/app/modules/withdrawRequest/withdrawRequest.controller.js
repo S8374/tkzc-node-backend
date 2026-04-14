@@ -18,6 +18,17 @@ const catchAsync_1 = require("../../utils/catchAsync");
 const sendResponse_1 = require("../../utils/sendResponse");
 const withdrawRequest_interface_1 = require("./withdrawRequest.interface");
 const withdrawRequest_service_1 = require("./withdrawRequest.service");
+const getWithdrawEligibility = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.userId;
+    const result = yield withdrawRequest_service_1.WithdrawRequestService.getWithdrawEligibility(userId);
+    (0, sendResponse_1.sendResponse)(res, {
+        success: true,
+        statusCode: http_status_codes_1.default.OK,
+        message: "Withdraw eligibility retrieved successfully",
+        data: result,
+    });
+}));
 const createWithdrawRequest = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.userId;
@@ -94,6 +105,7 @@ const cancelWithdrawRequest = (0, catchAsync_1.catchAsync)((req, res) => __await
     });
 }));
 exports.WithdrawRequestController = {
+    getWithdrawEligibility,
     createWithdrawRequest,
     getAllWithdrawRequests,
     getUserWithdrawRequests,

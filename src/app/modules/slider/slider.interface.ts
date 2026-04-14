@@ -10,6 +10,14 @@ export interface ISlider {
     buttonLink?: string;
     imageRedirectLink?: string;
 
+    // Promotion detail content (per slider item)
+    detailTitle?: string;
+    detailSubtitle?: string;
+    activityTimeText?: string;
+    introText?: string;
+    rewardDetailsText?: string;
+    rulesText?: string;
+
     // new fields
     money? : number;
     username?: string;

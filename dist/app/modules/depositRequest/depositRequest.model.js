@@ -20,6 +20,8 @@ const depositRequestSchema = new mongoose_1.Schema({
     transactionId: { type: String },
     senderNumber: { type: String },
     walletAddress: { type: String },
+    turnoverMultiplier: { type: Number },
+    turnoverRequired: { type: Number },
     status: {
         type: String,
         enum: Object.values(depositRequest_interface_1.DepositStatus),

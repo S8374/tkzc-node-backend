@@ -131,12 +131,21 @@ const handleCallback = async (payload: IGameCallbackPayload) => {
     let status: "won" | "lost" | "refunded" | "cancelled" = "lost";
 
     if (normalizedBetType === "BET") {
+      // 🛑 Check for insufficient balance before deducting
+      if (wallet.balance < amountMain) {
+        await session.abortTransaction();
+        return {
+          success: false,
+          message: "Insufficient balance for BET",
+          data: { balance: wallet.balance },
+        };
+      }
       balanceChange = -amountMain;
       status = "lost";
       wallet.currentTurnover = Number(((wallet.currentTurnover || 0) + amountMain).toFixed(2));
     } else if (normalizedBetType === "SETTLE") {
       balanceChange = amountMain;
-      status = "won";
+      status = amountMain > 0 ? "won" : "lost";
     } else if (normalizedBetType === "REFUND") {
       balanceChange = amountMain;
       status = "refunded";
@@ -207,6 +216,72 @@ const handleCallback = async (payload: IGameCallbackPayload) => {
   }
 };
 
+const getUserBets = async (userId: string, query: Record<string, unknown>) => {
+  const pageRaw = Number(query?.page ?? 1);
+  const limitRaw = Number(query?.limit ?? 20);
+  const page = Number.isFinite(pageRaw) && pageRaw > 0 ? Math.floor(pageRaw) : 1;
+  const limit = Number.isFinite(limitRaw) && limitRaw > 0 ? Math.min(Math.floor(limitRaw), 100) : 20;
+  const skip = (page - 1) * limit;
+
+  const filter: Record<string, unknown> = { user: new mongoose.Types.ObjectId(userId) };
+
+  if (typeof query?.provider_code === "string" && query.provider_code.trim()) {
+    filter.provider_code = query.provider_code.trim();
+  }
+
+  if (typeof query?.status === "string" && query.status.trim()) {
+    filter.status = query.status.trim();
+  }
+
+  if (typeof query?.bet_type === "string" && query.bet_type.trim()) {
+    filter.bet_type = query.bet_type.trim().toUpperCase();
+  }
+
+  const [rows, total, summaryRows] = await Promise.all([
+    GameTransaction.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+    GameTransaction.countDocuments(filter),
+    GameTransaction.aggregate([
+      { $match: filter },
+      {
+        $group: {
+          _id: null,
+          totalRecords: { $sum: 1 },
+          totalBetAmount: {
+            $sum: {
+              $cond: [{ $eq: ["$bet_type", "BET"] }, "$amount", 0],
+            },
+          },
+          totalWinAmount: {
+            $sum: {
+              $cond: [{ $eq: ["$bet_type", "SETTLE"] }, "$amount", 0],
+            },
+          },
+          netBalanceChange: { $sum: "$balanceChange" },
+        },
+      },
+    ]),
+  ]);
+
+  const summary = summaryRows[0] || {
+    totalRecords: 0,
+    totalBetAmount: 0,
+    totalWinAmount: 0,
+    netBalanceChange: 0,
+  };
+
+  return {
+    data: rows,
+    meta: {
+      page,
+      limit,
+      total,
+      totalPages: Math.max(1, Math.ceil(total / limit)),
+    },
+    summary,
+  };
+};
+
 export const GameService = {
   handleCallback,
+  getUserBets,
 };

@@ -23,6 +23,12 @@ const createPromotion = (payload) => __awaiter(void 0, void 0, void 0, function*
     if (payload.maxBonus && payload.maxBonus < 0) {
         throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "Maximum bonus cannot be negative");
     }
+    if (payload.bonusPercentage !== undefined && payload.bonusPercentage < 0) {
+        throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "Bonus percentage cannot be negative");
+    }
+    if (payload.turnoverValue !== undefined && payload.turnoverValue < 0) {
+        throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "Turnover value cannot be negative");
+    }
     // Validate value
     if (payload.value <= 0) {
         throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "Bonus value must be greater than 0");
@@ -84,6 +90,12 @@ const updatePromotion = (id, payload) => __awaiter(void 0, void 0, void 0, funct
     // Validate value if provided
     if (payload.value && payload.value <= 0) {
         throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "Bonus value must be greater than 0");
+    }
+    if (payload.bonusPercentage !== undefined && payload.bonusPercentage < 0) {
+        throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "Bonus percentage cannot be negative");
+    }
+    if (payload.turnoverValue !== undefined && payload.turnoverValue < 0) {
+        throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "Turnover value cannot be negative");
     }
     // Validate paymentMethodId if provided
     if (payload.paymentMethodId) {

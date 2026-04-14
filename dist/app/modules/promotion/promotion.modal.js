@@ -13,6 +13,8 @@ const promotionSchema = new mongoose_1.Schema({
     value: { type: Number, required: true },
     minDeposit: { type: Number },
     maxBonus: { type: Number }, // ✅ NEW: maximum bonus cap
+    bonusPercentage: { type: Number, default: 0 },
+    turnoverValue: { type: Number, default: 0 },
     paymentMethodId: {
         type: mongoose_1.Types.ObjectId,
         ref: "PaymentMethod",

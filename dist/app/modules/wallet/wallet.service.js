@@ -23,9 +23,37 @@ const updateWallet = (userId, payload) => __awaiter(void 0, void 0, void 0, func
     if (!wallet) {
         throw new AppError_1.default(http_status_codes_1.default.NOT_FOUND, "Wallet not found");
     }
-    if (payload.walletPassword) {
-        const hashedWalletPass = yield bcryptjs_1.default.hash(payload.walletPassword, 10);
+    const newWalletPassword = payload.newWalletPassword || payload.walletPassword;
+    // Set/Update withdraw password
+    if (newWalletPassword) {
+        if (wallet.walletPassword && !payload.currentWalletPassword) {
+            throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "Current withdraw password is required");
+        }
+        if (wallet.walletPassword && payload.currentWalletPassword) {
+            const isCurrentPasswordMatched = yield bcryptjs_1.default.compare(payload.currentWalletPassword, wallet.walletPassword);
+            if (!isCurrentPasswordMatched) {
+                throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "Current withdraw password is incorrect");
+            }
+        }
+        const hashedWalletPass = yield bcryptjs_1.default.hash(newWalletPassword, 10);
         wallet.walletPassword = hashedWalletPass;
+    }
+    const isAddressMutation = Boolean(payload.walletAddress || payload.protocol || payload.clearWalletAddress);
+    if (isAddressMutation) {
+        if (!wallet.walletPassword) {
+            throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "Please set withdraw password first");
+        }
+        if (!payload.currentWalletPassword) {
+            throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "Withdraw password is required");
+        }
+        const isPasswordMatched = yield bcryptjs_1.default.compare(payload.currentWalletPassword, wallet.walletPassword);
+        if (!isPasswordMatched) {
+            throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "Invalid withdraw password");
+        }
+    }
+    if (payload.clearWalletAddress) {
+        wallet.walletAddress = undefined;
+        wallet.protocol = undefined;
     }
     if (payload.walletAddress) {
         wallet.walletAddress = payload.walletAddress;

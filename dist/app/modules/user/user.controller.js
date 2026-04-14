@@ -57,7 +57,65 @@ const getWallet = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(voi
         data: wallet,
     });
 }));
+// Get User Stats (Subordinates)
+const getUserStats = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.userId;
+    if (!userId) {
+        res.status(http_status_codes_1.default.UNAUTHORIZED).json({
+            success: false,
+            message: "Unauthorized access",
+        });
+        return;
+    }
+    const stats = yield user_service_1.UserServices.getUserStats(userId);
+    (0, sendResponse_1.sendResponse)(res, {
+        success: true,
+        statusCode: http_status_codes_1.default.OK,
+        message: "User stats fetched successfully",
+        data: stats,
+    });
+}));
+const updateCurrentUser = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.userId;
+    if (!userId) {
+        res.status(http_status_codes_1.default.UNAUTHORIZED).json({
+            success: false,
+            message: "Unauthorized access",
+        });
+        return;
+    }
+    const result = yield user_service_1.UserServices.updateCurrentUser(userId, req.body);
+    (0, sendResponse_1.sendResponse)(res, {
+        success: true,
+        statusCode: http_status_codes_1.default.OK,
+        message: "User profile updated successfully",
+        data: result,
+    });
+}));
+const changeLoginPassword = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.userId;
+    if (!userId) {
+        res.status(http_status_codes_1.default.UNAUTHORIZED).json({
+            success: false,
+            message: "Unauthorized access",
+        });
+        return;
+    }
+    yield user_service_1.UserServices.changeLoginPassword(userId, req.body);
+    (0, sendResponse_1.sendResponse)(res, {
+        success: true,
+        statusCode: http_status_codes_1.default.OK,
+        message: "Password changed successfully",
+        data: null,
+    });
+}));
 exports.UserControllers = {
     createUser,
-    getWallet
+    getWallet,
+    getUserStats,
+    updateCurrentUser,
+    changeLoginPassword,
 };

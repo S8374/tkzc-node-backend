@@ -16,6 +16,9 @@ const partner_route_1 = require("../modules/partner/partner.route");
 const cryptoExchange_route_1 = require("../modules/cryptoExchange/cryptoExchange.route");
 const support_route_1 = require("../modules/support/support.route");
 const withdrawRequest_route_1 = require("../modules/withdrawRequest/withdrawRequest.route");
+const auto_deposite_route_1 = require("../modules/auto-deposite/auto-deposite.route");
+const downloadApp_route_1 = require("../modules/downloadApp/downloadApp.route");
+const game_route_1 = require("../modules/game/game.route");
 exports.router = (0, express_1.Router)();
 const moduleRoutes = [
     {
@@ -77,6 +80,18 @@ const moduleRoutes = [
     {
         path: "/supports",
         route: support_route_1.SupportRoutes
+    },
+    {
+        path: "/auto-deposits",
+        route: auto_deposite_route_1.AutoDepositRoutes
+    },
+    {
+        path: "/download-apps",
+        route: downloadApp_route_1.DownloadAppRoutes
+    },
+    {
+        path: "/game",
+        route: game_route_1.GameRoutes
     }
 ];
 moduleRoutes.forEach((route) => {

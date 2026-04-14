@@ -29,6 +29,28 @@ const parsePositiveInt = (value, fallback) => {
     }
     return Math.floor(parsed);
 };
+const getWithdrawEligibility = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const wallet = yield wallet_model_1.Wallet.findOne({ user: userId });
+    if (!wallet) {
+        throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "Wallet not found");
+    }
+    const requiredTurnover = wallet.requiredTurnover || 0;
+    const currentTurnover = wallet.currentTurnover || 0;
+    const remainingTurnover = Math.max(requiredTurnover - currentTurnover, 0);
+    const hasTurnoverRequirement = requiredTurnover > 0;
+    const canWithdrawByTurnover = remainingTurnover <= 0;
+    return {
+        hasTurnoverRequirement,
+        canWithdrawByTurnover,
+        currentTurnover,
+        requiredTurnover,
+        remainingTurnover,
+        progressPercent: requiredTurnover > 0 ? Math.min((currentTurnover / requiredTurnover) * 100, 100) : 100,
+        message: canWithdrawByTurnover
+            ? "Turnover requirement completed. You can submit withdraw request."
+            : `Withdrawal blocked. You must play at least ৳${remainingTurnover.toFixed(2)} more to complete the ৳${requiredTurnover.toFixed(2)} turnover requirement.`,
+    };
+});
 const createWithdrawRequest = (userId, payload) => __awaiter(void 0, void 0, void 0, function* () {
     const session = yield mongoose_1.default.startSession();
     session.startTransaction();
@@ -53,6 +75,13 @@ const createWithdrawRequest = (userId, payload) => __awaiter(void 0, void 0, voi
         }
         if (wallet.balance < amount) {
             throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "Insufficient balance for withdrawal");
+        }
+        // Check Turnover Condition
+        const turnOverRequired = wallet.requiredTurnover || 0;
+        const currentTurnover = wallet.currentTurnover || 0;
+        if (currentTurnover < turnOverRequired) {
+            const remaining = (turnOverRequired - currentTurnover).toFixed(2);
+            throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, `Withdrawal blocked. You need ৳${remaining} more turnover to meet the ৳${turnOverRequired} requirement.`);
         }
         wallet.balance -= amount;
         yield wallet.save({ session });
@@ -239,6 +268,7 @@ const cancelWithdrawRequest = (id, userId) => __awaiter(void 0, void 0, void 0, 
     }
 });
 exports.WithdrawRequestService = {
+    getWithdrawEligibility,
     createWithdrawRequest,
     getAllWithdrawRequests,
     getUserWithdrawRequests,

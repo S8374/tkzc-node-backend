@@ -31,6 +31,20 @@ const createDepositRequest = (userId, payload) => __awaiter(void 0, void 0, void
         if (!user) {
             throw new AppError_1.default(http_status_codes_1.default.NOT_FOUND, "User not found");
         }
+        if (payload.depositType === depositRequest_interface_1.DepositType.CRYPTO) {
+            const formData = payload.formData || {};
+            const proofUrl = payload.screenshot || formData.cryptoProof || formData.__cryptoProof;
+            if (!proofUrl) {
+                throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "Crypto deposit proof screenshot is required");
+            }
+            const bdtEquivalent = Number(formData.cryptoBdtEquivalent || payload.amount || 0);
+            if (!Number.isFinite(bdtEquivalent) || bdtEquivalent <= 0) {
+                throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "Invalid crypto converted amount");
+            }
+            payload.screenshot = proofUrl;
+            payload.amount = bdtEquivalent;
+            payload.formData = Object.assign(Object.assign({}, formData), { cryptoProof: proofUrl, cryptoBdtEquivalent: bdtEquivalent });
+        }
         // Calculate bonus if promotion applied
         let bonusAmount = 0;
         if (payload.promotionId) {
@@ -59,7 +73,7 @@ const createDepositRequest = (userId, payload) => __awaiter(void 0, void 0, void
             }
         }
         // Create deposit request
-        const depositRequest = yield depositRequest_model_1.DepositRequest.create([Object.assign(Object.assign({ user: userId, userName: user.name, userEmail: user.email }, payload), { bonusAmount, status: depositRequest_interface_1.DepositStatus.PENDING })], { session });
+        const depositRequest = yield depositRequest_model_1.DepositRequest.create([Object.assign(Object.assign({ user: userId, userName: user.name, userEmail: user.email }, payload), { turnoverMultiplier: payload.turnoverMultiplier, turnoverRequired: payload.turnoverRequired, bonusAmount, status: depositRequest_interface_1.DepositStatus.PENDING })], { session });
         yield session.commitTransaction();
         return depositRequest[0];
     }
@@ -150,7 +164,7 @@ const getSingleDepositRequest = (id) => __awaiter(void 0, void 0, void 0, functi
     }
     return request;
 });
-const processDepositRequest = (id, adminId, status, adminNote) => __awaiter(void 0, void 0, void 0, function* () {
+const processDepositRequest = (id, adminId, status, adminNote, bonusAmount, turnoverRequired) => __awaiter(void 0, void 0, void 0, function* () {
     const session = yield mongoose_1.default.startSession();
     session.startTransaction();
     try {
@@ -160,6 +174,13 @@ const processDepositRequest = (id, adminId, status, adminNote) => __awaiter(void
         }
         if (request.status !== depositRequest_interface_1.DepositStatus.PENDING) {
             throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, `Request already ${request.status.toLowerCase()}`);
+        }
+        // Update request fields if provided by admin
+        if (bonusAmount !== undefined) {
+            request.bonusAmount = bonusAmount;
+        }
+        if (turnoverRequired !== undefined) {
+            request.turnoverRequired = turnoverRequired;
         }
         // Update request status
         request.status = status;
@@ -173,13 +194,18 @@ const processDepositRequest = (id, adminId, status, adminNote) => __awaiter(void
             const wallet = yield wallet_model_1.Wallet.findOne({ user: request.user }).session(session);
             if (wallet) {
                 wallet.balance += totalAmount;
+                // Also increase required turnover if applicable
+                if (request.turnoverRequired && request.turnoverRequired > 0) {
+                    wallet.requiredTurnover = (wallet.requiredTurnover || 0) + request.turnoverRequired;
+                }
                 yield wallet.save({ session });
             }
             else {
                 // Create wallet if doesn't exist
                 yield wallet_model_1.Wallet.create([{
                         user: request.user,
-                        balance: totalAmount
+                        balance: totalAmount,
+                        requiredTurnover: request.turnoverRequired || 0
                     }], { session });
             }
         }

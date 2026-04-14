@@ -8,6 +8,24 @@ const marqueeSchema = new Schema<IMarquee>(
       required: true,
       trim: true,
     },
+    textTranslations: {
+      en: {
+        type: String,
+        trim: true,
+      },
+      zh: {
+        type: String,
+        trim: true,
+      },
+      vi: {
+        type: String,
+        trim: true,
+      },
+      bn: {
+        type: String,
+        trim: true,
+      },
+    },
     isActive: {
       type: Boolean,
       default: true,

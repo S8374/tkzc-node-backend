@@ -13,6 +13,13 @@ const sliderSchema = new Schema<ISlider>(
 
     buttonText: { type: String, trim: true },
     imageRedirectLink: { type: String, trim: true },
+
+    detailTitle: { type: String, trim: true },
+    detailSubtitle: { type: String, trim: true },
+    activityTimeText: { type: String, trim: true },
+    introText: { type: String, trim: true },
+    rewardDetailsText: { type: String, trim: true },
+    rulesText: { type: String, trim: true },
     
     money: { type: Number},
     username: { type: String,  trim: true },

@@ -24,7 +24,8 @@ app.use(cors({
     origin:[
          envVars.FRONTEND_URL ,
          "http://localhost:3000",
-         "http://localhost:3001"
+         "http://localhost:3001",
+         "https://sms-node-backend.vercel.app"
     ],
     credentials: true
 }))

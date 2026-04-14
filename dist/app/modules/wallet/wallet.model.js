@@ -24,5 +24,13 @@ const walletSchema = new mongoose_1.Schema({
         type: String,
         enum: Object.values(wallet_interface_1.WalletProtocol),
     },
+    currentTurnover: {
+        type: Number,
+        default: 0,
+    },
+    requiredTurnover: {
+        type: Number,
+        default: 0,
+    },
 }, { timestamps: true, versionKey: false });
 exports.Wallet = (0, mongoose_1.model)("Wallet", walletSchema);

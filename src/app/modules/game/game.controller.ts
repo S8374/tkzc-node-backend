@@ -15,6 +15,19 @@ const handleCallback = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getUserBets = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user?.userId;
+  const result = await GameService.getUserBets(userId, req.query as Record<string, unknown>);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "My bets retrieved successfully",
+    data: result,
+  });
+});
+
 export const GameController = {
   handleCallback,
+  getUserBets,
 };

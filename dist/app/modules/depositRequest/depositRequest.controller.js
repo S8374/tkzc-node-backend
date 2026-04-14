@@ -62,8 +62,8 @@ const getSingleDepositRequest = (0, catchAsync_1.catchAsync)((req, res) => __awa
 const approveDepositRequest = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const adminId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.userId;
-    const { adminNote } = req.body;
-    const result = yield depositRequest_service_1.DepositRequestService.processDepositRequest(req.params.id, adminId, depositRequest_interface_1.DepositStatus.APPROVED, adminNote);
+    const { adminNote, bonusAmount, turnoverRequired } = req.body;
+    const result = yield depositRequest_service_1.DepositRequestService.processDepositRequest(req.params.id, adminId, depositRequest_interface_1.DepositStatus.APPROVED, adminNote, bonusAmount, turnoverRequired);
     (0, sendResponse_1.sendResponse)(res, {
         success: true,
         statusCode: http_status_codes_1.default.OK,
