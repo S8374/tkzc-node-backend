@@ -12,33 +12,33 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GameService = void 0;
+export const GameService = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
-const user_model_1 = require("../user/user.model");
-const wallet_model_1 = require("../wallet/wallet.model");
-const game_model_1 = require("./game.model");
+import { User } from "../user/user.model";
+import { Wallet } from "../wallet/wallet.model";
+import { GameTransaction } from "./game.model";
 const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const normalizeUsername = (value) => value.trim().toLowerCase();
 const findUserFromCallback = (rawUsername, accountId) => __awaiter(void 0, void 0, void 0, function* () {
     const cleanUsername = normalizeUsername(rawUsername);
-    let user = yield user_model_1.User.findOne({
+    let user = yield User.findOne({
         name: { $regex: `^${escapeRegex(cleanUsername)}$`, $options: "i" },
     });
     if (user)
         return user;
-    user = yield user_model_1.User.findOne({
+    user = yield User.findOne({
         email: { $regex: `^${escapeRegex(cleanUsername)}$`, $options: "i" },
     });
     if (user)
         return user;
-    user = yield user_model_1.User.findOne({
+    user = yield User.findOne({
         email: { $regex: `^${escapeRegex(cleanUsername)}@`, $options: "i" },
     });
     if (user)
         return user;
     if (accountId) {
         const cleanAccountId = normalizeUsername(accountId);
-        user = yield user_model_1.User.findOne({
+        user = yield User.findOne({
             name: { $regex: `^${escapeRegex(cleanAccountId)}$`, $options: "i" },
         });
         if (user)
@@ -87,9 +87,9 @@ const handleCallback = (payload) => __awaiter(void 0, void 0, void 0, function* 
     const session = yield mongoose_1.default.startSession();
     session.startTransaction();
     try {
-        const existing = yield game_model_1.GameTransaction.findOne({ transactionKey: txKey }).session(session);
+        const existing = yield GameTransaction.findOne({ transactionKey: txKey }).session(session);
         if (existing) {
-            const existingWallet = yield wallet_model_1.Wallet.findOne({ user: user._id }).session(session);
+            const existingWallet = yield Wallet.findOne({ user: user._id }).session(session);
             yield session.commitTransaction();
             console.log("[Game Callback] duplicate ignored:", txKey);
             return {
@@ -102,9 +102,9 @@ const handleCallback = (payload) => __awaiter(void 0, void 0, void 0, function* 
                 },
             };
         }
-        let wallet = yield wallet_model_1.Wallet.findOne({ user: user._id }).session(session);
+        let wallet = yield Wallet.findOne({ user: user._id }).session(session);
         if (!wallet) {
-            const created = yield wallet_model_1.Wallet.create([
+            const created = yield Wallet.create([
                 {
                     user: user._id,
                     balance: 0,
@@ -153,7 +153,7 @@ const handleCallback = (payload) => __awaiter(void 0, void 0, void 0, function* 
         const walletBalanceBefore = wallet.balance;
         wallet.balance = Number((wallet.balance + balanceChange).toFixed(2));
         yield wallet.save({ session });
-        yield game_model_1.GameTransaction.create([
+        yield GameTransaction.create([
             {
                 user: user._id,
                 username: cleanUsername,
@@ -216,9 +216,9 @@ const getUserBets = (userId, query) => __awaiter(void 0, void 0, void 0, functio
         filter.bet_type = query.bet_type.trim().toUpperCase();
     }
     const [rows, total, summaryRows] = yield Promise.all([
-        game_model_1.GameTransaction.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
-        game_model_1.GameTransaction.countDocuments(filter),
-        game_model_1.GameTransaction.aggregate([
+        GameTransaction.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+        GameTransaction.countDocuments(filter),
+        GameTransaction.aggregate([
             { $match: filter },
             {
                 $group: {
@@ -256,7 +256,7 @@ const getUserBets = (userId, query) => __awaiter(void 0, void 0, void 0, functio
         summary,
     };
 });
-exports.GameService = {
+export const GameService = {
     handleCallback,
     getUserBets,
 };

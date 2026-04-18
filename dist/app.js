@@ -26,7 +26,8 @@ app.use((0, cors_1.default)({
         env_1.envVars.FRONTEND_URL,
         "http://localhost:3000",
         "http://localhost:3001",
-        "https://sms-node-backend.vercel.app"
+        "https://sms-node-backend.vercel.app",
+        "https://bet20live.net"
     ],
     credentials: true
 }));
